@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Tracker</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background: linear-gradient(to right, #ffecd2, #fcb69f);
+        padding: 30px;
+    }
+    h1 {
+        margin-bottom: 20px;
+    }
+    input, button {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+        border: none;
+        font-size: 1rem;
+    }
+    button {
+        background: #ff7e5f;
+        color: white;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #e55d4a;
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    li {
+        background: rgba(255, 255, 255, 0.8);
+        margin: 10px auto;
+        padding: 10px;
+        width: 250px;
+        display: flex;
+        justify-content: space-between;
+        border-radius: 8px;
+        align-items: center;
+    }
+    .done {
+        text-decoration: line-through;
+        color: green;
+    }
+    progress {
+        width: 80%;
+        height: 20px;
+        margin-top: 20px;
+    }
+</style>
+</head>
+<body>
+
+<h1>📅 Daily Habit Tracker</h1>
+<input type="text" id="habitInput" placeholder="Enter a habit">
+<button onclick="addHabit()">Add Habit</button>
+
+<ul id="habitList"></ul>
+
+<progress id="progressBar" value="0" max="100"></progress>
+<p id="progressText">0% completed</p>
+
+<script>
+    let habits = JSON.parse(localStorage.getItem("habits")) || [];
+
+    function saveHabits() {
+        localStorage.setItem("habits", JSON.stringify(habits));
+    }
+
+    function renderHabits() {
+        const habitList = document.getElementById("habitList");
+        habitList.innerHTML = "";
+        let completedCount = 0;
+
+        habits.forEach((habit, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <span class="${habit.done ? 'done' : ''}">${habit.name}</span>
+                <button onclick="toggleHabit(${index})">${habit.done ? 'Undo' : 'Done'}</button>
+            `;
+            habitList.appendChild(li);
+            if (habit.done) completedCount++;
+        });
+
+        const progress = habits.length > 0 ? (completedCount / habits.length) * 100 : 0;
+        document.getElementById("progressBar").value = progress;
+        document.getElementById("progressText").innerText = `${Math.round(progress)}% completed`;
+    }
+
+    function addHabit() {
+        const habitName = document.getElementById("habitInput").value.trim();
+        if (habitName) {
+            habits.push({ name: habitName, done: false });
+            document.getElementById("habitInput").value = "";
+            saveHabits();
+            renderHabits();
+        }
+    }
+
+    function toggleHabit(index) {
+        habits[index].done = !habits[index].done;
+        saveHabits();
+        renderHabits();
+    }
+
+    renderHabits();
+</script>
+
+</body>
+</html>
